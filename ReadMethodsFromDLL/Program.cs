@@ -8,7 +8,8 @@ namespace ReadMethodsFromDLL
         {
             string path = "C:\\Users\\Иван\\source\\repos\\ReadMethodsFromDLL\\TestLibrary\\bin\\Debug";
 
-            ReadMembers.PrintLibraryMembers(ReadMembers.GetMembers(path));
+            //реализация через прописанное в ТЗ
+            ReadMembers.PrintLibraryMembers(ReadMembers.GetMembersNames(path));
 
             Console.ReadKey();
         }
