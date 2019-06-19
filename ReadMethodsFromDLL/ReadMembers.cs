@@ -4,13 +4,12 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Linq;
+using System.Diagnostics;
 
 namespace ReadMethodsFromDLL
 {
     public static class ReadMembers
     {
-
-
         /// <summary>
         /// Метод возвращающий имя класса и его имена всех public и protected методов
         /// </summary>
@@ -39,7 +38,6 @@ namespace ReadMethodsFromDLL
         public static void PrintLibraryMembers(Dictionary<string, List<string>> classMethodsDictionary)
         {
             Console.OutputEncoding = Encoding.UTF8;
-            //TODO: Проверить на пустой value
             foreach (var cl in classMethodsDictionary)
             {
                 Console.WriteLine($"\u2022 {cl.Key}\n");
@@ -51,27 +49,47 @@ namespace ReadMethodsFromDLL
             }
         }
 
-        //TODO: Добавить проверку на пустую папку
-        private static string[] GetFileNames(string path) =>
-            Directory.GetFiles(path, "*.dll");
+        private static string[] GetFileNames(string path)
+        {
+            string[] files = null;
+            try
+            {
+                files = Directory.GetFiles(path, "*.dll");
+            }
+            catch (DirectoryNotFoundException e)
+            {
+                Console.WriteLine("ERROR! Не найдена директория: " + path);
+                Debug.WriteLine("ERROR! Не найдена директория: " + path);
+                throw;
+            }
+            return files;
+        }
 
         private static Dictionary<string, Type[]> GetAssemblyTypes(string[] filePaths)
         {
             Dictionary<string, Type[]> fileTypesDictionary = new Dictionary<string, Type[]>();
-            //TODO: Добавить печать ексепшна, если не получилось открыть файл
-            foreach (var fileName in filePaths)
-                fileTypesDictionary.Add(fileName, Assembly.LoadFrom(fileName).GetTypes());
+            try
+            {
+                foreach (var fileName in filePaths)
+                    fileTypesDictionary.Add(fileName, Assembly.LoadFrom(fileName).GetTypes());
+            }
+            catch (BadImageFormatException e)
+            {
+                Console.WriteLine("ERROR! Ошибка чтения файла: " + e.FileName);
+                Debug.WriteLine("ERROR! Ошибка чтения файла: " + e.FileName);
+            }
             fileTypesDictionary.Values.GroupBy(n => n.GroupBy(a => a.Name));
             return fileTypesDictionary;
         }
         private static Dictionary<Type, MethodInfo[]> GetMembers(string path)
         {
             string[] fileNames = GetFileNames(path);
+            if (fileNames.Count() == 0)
+                Console.WriteLine("WARNING! Папка не содержит библиотек(.dll)!");
             Dictionary<string, Type[]> fileTypesDictionary = new Dictionary<string, Type[]>();
             Dictionary<Type, MethodInfo[]> classMethodsDictionary = new Dictionary<Type, MethodInfo[]>();
             fileTypesDictionary = GetAssemblyTypes(fileNames);
 
-            //TODO: Проверить на пустую сборку
             foreach (var types in fileTypesDictionary.Values)
             {
                 foreach (var type in types)
