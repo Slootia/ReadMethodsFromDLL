@@ -35,7 +35,7 @@ namespace ReadMethodsFromDLL
         /// Метод вывода имени класса и названия его имен всех public и protected методов
         /// </summary>
         /// <param name="classMethodsDictionary">Словарь имен классов и список методов класса</param>
-        public static void PrintLibraryMembers(Dictionary<string, List<string>> classMethodsDictionary)
+        public static void ShowOnConsole(Dictionary<string, List<string>> classMethodsDictionary)
         {
             Console.OutputEncoding = Encoding.UTF8;
             foreach (var cl in classMethodsDictionary)
@@ -46,6 +46,22 @@ namespace ReadMethodsFromDLL
                     Console.WriteLine($"\t\u25E6 {method}");
                 }
                 Console.WriteLine("\n");
+            }
+        }
+
+        public static void WriteInFile(Dictionary<string, List<string>> classMethodsDictionary, string path)
+        {
+            using (StreamWriter file = new StreamWriter(Path.Combine(path, "List.txt")))
+            {
+                foreach (var cl in classMethodsDictionary)
+                {
+                    file.WriteLine($"\u2022 {cl.Key}\n");
+                    foreach (var method in cl.Value)
+                    {
+                        file.WriteLine($"\t\u25E6 {method}");
+                    }
+                    file.WriteLine("\n");
+                }
             }
         }
 
